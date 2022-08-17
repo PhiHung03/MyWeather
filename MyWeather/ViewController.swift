@@ -44,6 +44,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         callDelegates()
         currentWeather = CurrentWeather()
         setupLocation()
+        downloadWeatherImage()
         applyEffect()
         
         
@@ -117,12 +118,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     /// hàm cập nhật giao diện theo thời tiết hiện tại
     func updateUI() {
         cityName.text = currentWeather.cityName
-        currentCityTemp.text = "\(Int(currentWeather.currentTemp))"
+        currentCityTemp.text = "\(Int(currentWeather.currentTemp))°"
         weatherType.text = currentWeather.weatherType
         currentDate.text = currentWeather.date
     }
-    
-    /// hàm download dự báo thời tiết
+      /// hàm download dự báo thời tiết
     ///
    
     func downloadForecastWeather(completed: @escaping DownloadComplete) {
@@ -141,6 +141,30 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             completed()
         }
     }
+    
+    func downloadWeatherImage() {
+        Alamofire.request(API_URL).responseJSON { (response) in
+            if let responseStr = response.result.value {
+                let jsonResponse = JSON(responseStr)
+                let jsonWeather = jsonResponse["weather"].array![0]
+                let iconName = jsonWeather["icon"].stringValue
+                
+                self.weatherImage.image = UIImage(named: iconName)
+                
+                let suffix = iconName.suffix(1)
+                if suffix == "n" {
+                    self.specialBG.image = UIImage(named: "bg-n")
+                } else {
+                    self.specialBG.image = UIImage(named: "bg-d")
+                }
+            }
+            
+        }
+        
+    }
+    
+    
+    
 }
 
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
