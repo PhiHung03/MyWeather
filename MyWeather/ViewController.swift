@@ -44,7 +44,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         callDelegates()
         currentWeather = CurrentWeather()
         setupLocation()
-        downloadWeatherImage()
         applyEffect()
         
         
@@ -82,6 +81,24 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             Location.sharedInstance.longitude = currentLocation.coordinate.longitude
             
             // Download API Data
+            Alamofire.request(API_URL).responseJSON { (response) in
+                        if let responseStr = response.result.value {
+                            let jsonResponse = JSON(responseStr)
+                            let jsonWeather = jsonResponse["weather"].array![0]
+                            let iconName = jsonWeather["icon"].stringValue
+            
+                            self.weatherImage.image = UIImage(named: iconName)
+            
+                            let suffix = iconName.suffix(1)
+                            if suffix == "n" {
+                                self.specialBG.image = UIImage(named: "bg-n")
+                            } else {
+                                self.specialBG.image = UIImage(named: "bg-d")
+                            }
+                        }
+            
+                    }
+            
             currentWeather.downloadCurrentWeather {
                 // cập nhật ui sau khi tải thành công data
                 self.updateUI()
@@ -121,6 +138,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         currentCityTemp.text = "\(Int(currentWeather.currentTemp))°"
         weatherType.text = currentWeather.weatherType
         currentDate.text = currentWeather.date
+        
     }
       /// hàm download dự báo thời tiết
     ///
@@ -141,30 +159,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             completed()
         }
     }
-    
-    func downloadWeatherImage() {
-        Alamofire.request(API_URL).responseJSON { (response) in
-            if let responseStr = response.result.value {
-                let jsonResponse = JSON(responseStr)
-                let jsonWeather = jsonResponse["weather"].array![0]
-                let iconName = jsonWeather["icon"].stringValue
-                
-                self.weatherImage.image = UIImage(named: iconName)
-                
-                let suffix = iconName.suffix(1)
-                if suffix == "n" {
-                    self.specialBG.image = UIImage(named: "bg-n")
-                } else {
-                    self.specialBG.image = UIImage(named: "bg-d")
-                }
-            }
-            
-        }
-        
-    }
-    
-    
-    
 }
 
 extension ViewController: UITableViewDelegate, UITableViewDataSource {

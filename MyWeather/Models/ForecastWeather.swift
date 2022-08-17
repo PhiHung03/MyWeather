@@ -10,7 +10,7 @@ import Foundation
 class ForecastWeather {
     private var _date: String!
     private var _temp: Double!
-    
+   
     var date: String {
         if _date == nil {
             _date = ""
@@ -45,7 +45,6 @@ class ForecastWeather {
             
             self._date = "\(rawDate.dayOfTheWeek())"
         }
-        
     }
     
 }
